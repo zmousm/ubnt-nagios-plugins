@@ -165,14 +165,14 @@ try:
 			continue
 		try:
 			boolcheckKeyVal_actual = eval ('data.' + boolcheckKeyVal[0])
-			if (not str (boolcheckKeyVal_actual) == boolcheckKeyVal[2]):
-				plugin.returnValue = plugin.returnValues['CRITICAL']
-				plugin.returnString += " %s" % boolcheckKeyVal[0]
-			plugin.addPerformanceData (boolcheckKeyVal[0], str (boolcheckKeyVal_actual))
 		except AttributeError:
 			plugin.returnValue = plugin.returnValues['UNKNOWN']
 			plugin.returnString = boolcheckKeyVal[0]
 			plugin.finish()
+		if (not str (boolcheckKeyVal_actual) == boolcheckKeyVal[2]):
+			plugin.returnValue = plugin.returnValues['CRITICAL']
+			plugin.returnString += " %s" % boolcheckKeyVal[0]
+		plugin.addPerformanceData (boolcheckKeyVal[0], str (boolcheckKeyVal_actual))
 
  	# Output result
  	plugin.finish()
