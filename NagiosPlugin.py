@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 """ Module to create Nagios plugins """
 __version__ = "1.0"
 __author__ = "Omni Flux"
