@@ -10,7 +10,10 @@ import socket
 import traceback
 import urllib2
 import cookielib
-import simplejson as json
+if sys.version_info < (2, 6):
+	import simplejson as json
+else:
+	import json
 from optparse import OptionGroup
 from NagiosPlugin import NagiosPlugin
 from MultiPartForm import MultiPartForm
