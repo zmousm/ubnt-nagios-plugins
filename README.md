@@ -16,7 +16,7 @@ e.g. /status.cgi; the same thing happens for data shown in the "main"
 tab through a web browser.
 
 Both plugins work with warning and critical thresholds. The threshold
-format is explained here:
+format is explained at
 http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT
 
 See the plugin usage (run with -h) for the labels of these
@@ -32,11 +32,11 @@ eth0 (the config port on AF24) is 100 Mbps, you would append this to
 the boolean checks: interfaces[2].status.speed=100
 
 
-The plugins are inspired by the script posted here:
+The plugins are inspired by the script posted at
 http://forum.ubnt.com/showthread.php?t=27170
-and are heavily based on this implementation:
+and are heavily based on this implementation
 http://www.omniflux.com/devel/#ubntm
-which is discussed here:
+which is discussed at
 http://forum.ubnt.com/showthread.php?t=27170
 
 The basic difference is that data is fetched over HTTP rather than
