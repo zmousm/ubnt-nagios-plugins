@@ -19,8 +19,8 @@ from DictDotLookup import DictDotLookup
 # Setup plugin
 plugin = NagiosPlugin (version="1.0", usage="Usage: %prog -H <hostname> [-U <username>] -P <password> [options]", description="Nagios plugin for UBNT-AF24 radios (over HTTP)")
 
-plugin.parser.get_option ("-w").help += "s (rxpower0,rxpower1,rxcapacity,txcapacity,txmodrate,distance,dactemp0,dactemp1,gps.dop_quality,gps.sats)"
-plugin.parser.get_option ("-c").help += "s (rxpower0,rxpower1,rxcapacity,txcapacity,txmodrate,distance,dactemp0,dactemp1,gps.dop_quality,gps.sats)"
+plugin.parser.get_option ("-w").help += "s (airfiber.rxpower0,airfiber.rxpower1,airfiber.rxcapacity,airfiber.txcapacity,airfiber.txmodrate,wireless.distance,airfiber.dactemp0,airfiber.dactemp1,gps.dop_quality,gps.sats)"
+plugin.parser.get_option ("-c").help += "s (airfiber.rxpower0,airfiber.rxpower1,airfiber.rxcapacity,airfiber.txcapacity,airfiber.txmodrate,wireless.distance,airfiber.dactemp0,airfiber.dactemp1,gps.dop_quality,gps.sats)"
 
 boolGroup = OptionGroup (plugin.parser, "Boolean check options")
 boolGroup.add_option ("-b", "--boolean", help="Check that specific keys have particular values, otherwise the plugin returns CRITICAL (default: airfiber.rxpower0valid=1,airfiber.rxpower1valid=1,airfiber.rxoverload0=0,airfiber.rxoverload1=0,gps.status=1,gps.fix=1,airfiber.data_speed=1000Mbps-Full,airfiber.linkstate=operational)", default="airfiber.rxpower0valid=1,airfiber.rxpower1valid=1,airfiber.rxoverload0=0,airfiber.rxoverload1=0,gps.status=1,gps.fix=1,airfiber.data_speed=1000Mbps-Full,airfiber.linkstate=operational")
@@ -98,15 +98,15 @@ try:
 	resp = urlopen(req)
 
 	# Collect performance data
-	plugin.addPerformanceData ('rxpower0', str (data['airfiber']['rxpower0']), 0, min='-100', max='0')
-	plugin.addPerformanceData ('rxpower1', str (data['airfiber']['rxpower1']), 1, min='-100', max='0')
-	plugin.addPerformanceData ('rxcapacity', data['airfiber']['rxcapacity'], 2, min='0', max='750000000')
-	plugin.addPerformanceData ('txcapacity', data['airfiber']['txcapacity'], 3, min='0', max='750000000')
+	plugin.addPerformanceData ('airfiber.rxpower0', str (data['airfiber']['rxpower0']), 0, min='-100', max='0')
+	plugin.addPerformanceData ('airfiber.rxpower1', str (data['airfiber']['rxpower1']), 1, min='-100', max='0')
+	plugin.addPerformanceData ('airfiber.rxcapacity', data['airfiber']['rxcapacity'], 2, min='0', max='750000000')
+	plugin.addPerformanceData ('airfiber.txcapacity', data['airfiber']['txcapacity'], 3, min='0', max='750000000')
 	txmodrate = str (data['airfiber']['txmodrate']).rstrip('x')
-	plugin.addPerformanceData ('txmodrate', txmodrate, 4, min='0', max='6')
-	plugin.addPerformanceData ('distance', data['wireless']['distance'], 5, min='100', max='15000')
-	plugin.addPerformanceData ('dactemp0', str (data['airfiber']['dactemp0']), 6, min='-50', max='65')
-	plugin.addPerformanceData ('dactemp1', str (data['airfiber']['dactemp1']), 7, min='-50', max='65')
+	plugin.addPerformanceData ('airfiber.txmodrate', txmodrate, 4, min='0', max='6')
+	plugin.addPerformanceData ('wireless.distance', data['wireless']['distance'], 5, min='100', max='15000')
+	plugin.addPerformanceData ('airfiber.dactemp0', str (data['airfiber']['dactemp0']), 6, min='-50', max='65')
+	plugin.addPerformanceData ('airfiber.dactemp1', str (data['airfiber']['dactemp1']), 7, min='-50', max='65')
 	gps_dop = float (data['gps']['dop'])
 	gps_dop_qual = 0
 	if (gps_dop > 20):
@@ -134,21 +134,21 @@ try:
 
  	# Check thresholds
 	if (plugin.checkThreshold (data['airfiber']['rxpower0'], 0) != plugin.returnValues['OK']):
-		plugin.returnString += " rxpower0"
+		plugin.returnString += " airfiber.rxpower0"
 	if (plugin.checkThreshold (data['airfiber']['rxpower1'], 1) != plugin.returnValues['OK']):
-		plugin.returnString += " rxpower1"
+		plugin.returnString += " airfiber.rxpower1"
 	if (plugin.checkThreshold (data['airfiber']['rxcapacity'], 2) != plugin.returnValues['OK']):
-		plugin.returnString += " rxcapacity"
+		plugin.returnString += " airfiber.rxcapacity"
 	if (plugin.checkThreshold (data['airfiber']['txcapacity'], 3) != plugin.returnValues['OK']):
-		plugin.returnString += " txcapacity"
+		plugin.returnString += " airfiber.txcapacity"
 	if (plugin.checkThreshold (int (txmodrate), 4) != plugin.returnValues['OK']):
-		plugin.returnString += " txmodrate"
+		plugin.returnString += " airfiber.txmodrate"
 	if (plugin.checkThreshold (data['wireless']['distance'], 5) != plugin.returnValues['OK']):
-		plugin.returnString += " distance"
+		plugin.returnString += " wireless.distance"
 	if (plugin.checkThreshold (data['airfiber']['dactemp0'], 6) != plugin.returnValues['OK']):
-		plugin.returnString += " dactemp0"
+		plugin.returnString += " airfiber.dactemp0"
 	if (plugin.checkThreshold (data['airfiber']['dactemp1'], 7) != plugin.returnValues['OK']):
-		plugin.returnString += " dactemp1"
+		plugin.returnString += " airfiber.dactemp1"
 	if (plugin.checkThreshold (gps_dop_qual, 8) != plugin.returnValues['OK']):
 		plugin.returnString += " gps.dop_quality"
 	if (plugin.checkThreshold (data['gps']['sats'], 9) != plugin.returnValues['OK']):
