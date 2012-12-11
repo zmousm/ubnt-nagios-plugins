@@ -6,8 +6,8 @@ Supported platforms are:
 - AirMAX (http://www.ubnt.com/airmax) and
 - AirFiber (http://www.ubnt.com/airfiber)
 
-AirMAX implicitly supports only point-to-point links, i.e. an AP with
-a single STA. AirFiber is point-to-point anyway; only AF24 is
+AirMAX plugin implicitly supports only point-to-point links, i.e. an
+AP with a single STA. AirFiber is point-to-point anyway; only AF24 is
 supported (the only model available at the time of this writing).
 
 The plugins login to the device's web interface (a read-only account
@@ -18,7 +18,9 @@ tab through a web browser.
 Both plugins work with warning and critical thresholds. The threshold
 format is explained here:
 http://nagiosplug.sourceforge.net/developer-guidelines.html#THRESHOLDFORMAT
-See the plugin usage (run with -h) for the labels of these thresholds.
+
+See the plugin usage (run with -h) for the labels of these
+thresholds. They should be self-explanatory for each platform.
 
 The AirFiber plugin additionally supports an arbitrary number of
 checks for on/off values, as plenty of them are available on this
@@ -32,10 +34,8 @@ the boolean checks: interfaces[2].status.speed=100
 
 The plugins are inspired by the script posted here:
 http://forum.ubnt.com/showthread.php?t=27170
-
 and are heavily based on this implementation:
 http://www.omniflux.com/devel/#ubntm
-
 which is discussed here:
 http://forum.ubnt.com/showthread.php?t=27170
 
@@ -45,4 +45,5 @@ is another difference.
 
 --
 Zenon Mousmoulas
+
 Last updated: 2012-12-11
