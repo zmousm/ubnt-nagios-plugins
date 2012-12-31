@@ -48,6 +48,7 @@ manipulating a value before it is returned by the script.
 See the example configurations for Nagios and MRTG for usage examples
 and ideas.
 
+
 The plugins are inspired by the script posted at
 http://forum.ubnt.com/showthread.php?t=27170
 and are heavily based on this implementation
