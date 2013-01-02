@@ -26,7 +26,7 @@ parser.add_option ("-t", "--timeout", type="int", default=10, help="seconds befo
 
 dataGroup = OptionGroup (parser, "Options for data sources and values returned by the program")
 dataGroup.add_option("-k", "--source-key", nargs=2, action="append", help="This option should be used as many times as the number of values to be returned by the program. It must be followed by exactly two (2) arguments: the source of data the program will poll and the key for the value to be probed. The first argument will be used to construct the URL to be requested through HTTP from the device (GET /<source>.cgi). For the second argument, any key that appears in the selected data source may be given, using dotted notation to perform nested lookups in JSON data structures. Example: -k stats airfiber.txcapacity -k stats airfiber.rxcapacity")
-dataGroup.add_option("-f", "--formula", action="append", help="Specify an optional formula [expression to be interpreted by Python using eval()] that shall be used to modify the corresponding value before it is returned. This option must be used as many times as the number of source-key options, so that formulas are matched with keys. Any occurences of VAL in a formula will be replaced by the corresponding value. If an empty string is given, processing is skipped for the corresponding value. Example: -f \"VAL*1000\" \"VAL/1000\"")
+dataGroup.add_option("-e", "--expression", action="append", help="Specify an optional expression [to be interpreted by Python using eval()] that shall be used to modify the corresponding value before it is returned. This option must be used as many times as the number of source-key options, so that expressions are matched with keys. Any occurences of VAL in an expression will be replaced by the corresponding value. If an empty string is given, processing is skipped for the corresponding value. Example: -e \"VAL*1000\" \"VAL/1000\"")
 parser.add_option_group (dataGroup)
 
 connGroup = OptionGroup (parser, "Connection options")
@@ -56,8 +56,8 @@ try:
 	if (options.source_key is None):
 		parser.error ("-k/--source-key option is required")
 
-	if ((options.formula is not None) and (len(options.formula) != len(options.source_key))):
-		parser.error ("-f/--formula option must be used as many times as the -k/--source-key option")
+	if ((options.expression is not None) and (len(options.expression) != len(options.source_key))):
+		parser.error ("-e/--expression option must be used as many times as the -k/--source-key option")
 
 	# Prepare login
 	form = MultiPartForm()
@@ -145,12 +145,12 @@ try:
 		except AttributeError:
 			raise Exception("no key %s found in data source (URL: %s)" % (key, options.httphost + datasourceuri[source]))
 
-		# Massage value with formula
-		if (options.formula is not None):
-			formula = options.formula[i]
-			if (formula):
-				formula = formula.replace("VAL", "key_data")
-				key_data = eval (formula)
+		# Massage value with expression
+		if (options.expression is not None):
+			expression = options.expression[i]
+			if (expression):
+				expression = expression.replace("VAL", "key_data")
+				key_data = eval (expression)
 
 		returndata.append(key_data)
 
