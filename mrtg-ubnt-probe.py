@@ -124,7 +124,11 @@ try:
 		# Check content-type (last resort) before passing to JSON parser
 		contype = resp.info()['Content-type']
 		if (contype != "application/json"):
-			raise Exception("response has wrong content-type: " + contype)
+			# sta.cgi on AirOS returns text/html
+			if ((source == 'sta') and (contype =='text/html')):
+				pass
+			else:
+				raise Exception("response has wrong content-type: " + contype)
 
 		data[source] = json.loads(resp.read())
 
