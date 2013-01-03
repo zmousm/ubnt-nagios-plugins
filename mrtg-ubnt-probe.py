@@ -106,8 +106,9 @@ try:
 			print "Logging out"
 		resp = urlopen(req)
 
+	data = {}
+	datasourceuri = {}
 	# Poll data sources (only once for each data source)
-	data = datasourceuri = {}
 	for source in dict(options.source_key).keys():
 		datasourceuri[source] = "/%s.cgi" % source
 
@@ -125,15 +126,17 @@ try:
 		if (contype != "application/json"):
 			raise Exception("response has wrong content-type: " + contype)
 
-		d = json.loads(resp.read())
-		d = DictDotLookup(d)
-
-		data[source] = d
+		data[source] = json.loads(resp.read())
 
 	sessionclose()
 
 	if (not len (data)):
 		raise Exception("no valid sources or no data collected from sources")
+
+	# We can only convert dict objects to dotted notation,
+	# so lets do it on data rather than each data[source],
+	# which can be a list.
+	data = DictDotLookup(data)
 
 	# Process keys
 	returndata = []
@@ -145,9 +148,13 @@ try:
 
 		# Attempt to find key in data source
 		try:
-			key_data = eval ('data[source].%s' % key)
+			# next trick covers the case the key
+			# starts with a list item
+			key_data = eval ('data.%s%s' % (source,
+							key if key.startswith('[') else '.' + key))
 		except AttributeError:
-			raise Exception("no key %s found in data source (URL: %s)" % (key, options.httphost + datasourceuri[source]))
+			raise Exception("no key %s found in data source (URL: %s)" %
+					(key, options.httphost + datasourceuri[source]))
 
 		# Massage value with expression
 		if (options.expression is not None):
