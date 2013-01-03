@@ -152,12 +152,12 @@ try:
 
 		# Attempt to find key in data source
 		try:
-			# next trick covers the case the key
-			# starts with a list item
-			key_data = eval ('data.%s%s' % (source,
+			# if-else one-liner covers the case
+			# the key starts with a list item
+			key_data = eval ('data[\'%s\']%s' % (source,
 							key if key.startswith('[') else '.' + key))
-		except AttributeError:
-			raise Exception("no key %s found in data source (URL: %s)" %
+		except (AttributeError, IndexError):
+			raise Exception("%s not found in data source (URL: %s)" %
 					(key, options.httphost + datasourceuri[source]))
 
 		# Massage value with expression
