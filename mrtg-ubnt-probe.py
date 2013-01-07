@@ -16,7 +16,29 @@ else:
 	import json
 from optparse import OptionParser, OptionValueError, OptionGroup
 from MultiPartForm import MultiPartForm
-from DictDotLookup import DictDotLookup
+import re
+
+def dot_to_dict(key):
+    """
+    Convert dotted notation (object.attribute) to the equivalent
+    dict/list syntax. This specifically targets access to objects
+    (nested dict/list data structures) returned by json.loads().
+    """
+    retkey = []
+    # split at '.' boundaries
+    for part in key.split('.'):
+        # ONLY match key[int_index] or [int_index]
+        key_idx_match = re.search('^([^\[\]]+)?(\[[:\d]+\])$', part)
+        if key_idx_match:
+            part = ''
+            if key_idx_match.group(1) is not None:
+                part += "['%s']" % key_idx_match.group(1)
+            part += key_idx_match.group(2)
+        else:
+            part = "['%s']" % part
+        retkey.append(part)
+    return ''.join(retkey)
+
 
 # Setup argument handler
 parser = OptionParser (usage="Usage: %prog -H <httphost> [-U <username>] -P <password> -k <source> <key> [options]", description="MRTG probe for UBNT devices (over HTTP)", epilog=None)
@@ -137,11 +159,6 @@ try:
 	if (not len (data)):
 		raise Exception("no valid sources or no data collected from sources")
 
-	# We can only convert dict objects to dotted notation,
-	# so lets do it on data rather than each data[source],
-	# which can be a list.
-	data = DictDotLookup(data)
-
 	# Process keys
 	returndata = []
 	for i in range(len(options.source_key)):
@@ -150,13 +167,17 @@ try:
 		if (not len (key)):
 			raise Exception("invalid key (empty string)")
 
+		# if-else one-liner covers the case
+		# the key starts with a list item
+		source_key = '%s%s' % (source,
+				       key if key.startswith('[') else '.' + key)
+
+		source_key = 'data' + dot_to_dict(source_key)
+
 		# Attempt to find key in data source
 		try:
-			# if-else one-liner covers the case
-			# the key starts with a list item
-			key_data = eval ('data[\'%s\']%s' % (source,
-							key if key.startswith('[') else '.' + key))
-		except (AttributeError, IndexError):
+			key_data = eval (source_key)
+		except (KeyError, IndexError):
 			raise Exception("%s not found in data source (URL: %s)" %
 					(key, options.httphost + datasourceuri[source]))
 
