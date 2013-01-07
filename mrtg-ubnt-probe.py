@@ -41,7 +41,7 @@ def dot_to_dict(key):
 
 
 # Setup argument handler
-parser = OptionParser (usage="Usage: %prog -H <httphost> [-U <username>] -P <password> -k <source> <key> [options]", description="MRTG probe for UBNT devices (over HTTP)", epilog=None)
+parser = OptionParser (usage="Usage: %prog -H <httphost> [-U <username>] -P <password> -k <source>/<key> [options]", description="MRTG probe for UBNT devices (over HTTP)", epilog=None)
 parser.add_option ("-V", "--version", action="store_true", help="show the version and exit")
 parser.add_option ("-v", "--verbose", action="count", help="show debugging information")
 parser.add_option ("-t", "--timeout", type="int", default=10, help="seconds before plugin times out (default: 10)")
@@ -56,7 +56,7 @@ authGroup.add_option ("-P", "--password", help="password")
 parser.add_option_group (authGroup)
 
 dataGroup = OptionGroup (parser, "Options for data sources and values returned by the program")
-dataGroup.add_option("-k", "--source-key", nargs=2, action="append", help="This option should be used as many times as the number of values to be returned by the program. It must be followed by exactly two (2) arguments: the source of data the program will poll and the key for the value to be probed. The first argument will be used to construct the URL to be requested through HTTP from the device (GET /<source>.cgi). For the second argument, any key that appears in the selected data source may be given, using dotted notation to perform nested lookups in JSON data structures. Example: -k stats airfiber.txcapacity -k stats airfiber.rxcapacity")
+dataGroup.add_option("-k", "--source-key", action="append", help="This option should be used as many times as the number of values to be returned by the program. It must be followed by exactly two (2) arguments, joined with '/': the source of data the program will poll and the key for the value to be probed. The first argument will be used to construct the URL to be requested through HTTP from the device (GET /<source>.cgi). For the second argument, any key that appears in the selected data source may be given, using dotted notation to perform nested lookups in JSON data structures. Example: -k stats/airfiber.txcapacity -k stats/airfiber.rxcapacity")
 dataGroup.add_option("-e", "--expression", action="append", help="Specify an optional expression [to be interpreted by Python using eval()] that shall be used to modify the corresponding value before it is returned. This option must be used as many times as the number of source-key options, so that expressions are matched with keys. Any occurences of VAL in an expression will be replaced by the corresponding value. If an empty string is given, processing is skipped for the corresponding value. Example: -e \"VAL*1000\" \"VAL/1000\"")
 parser.add_option_group (dataGroup)
 
@@ -81,6 +81,11 @@ try:
 
 	if (options.source_key is None):
 		parser.error ("-k/--source-key option is required")
+	for i, k in enumerate(options.source_key):
+		if k.find('/') == -1:
+			parser.error("-k/--source-key option must be followed by two arguments joined with /")
+		else:
+			options.source_key[i] = tuple(k.split('/', 1))
 
 	if ((options.expression is not None) and (len(options.expression) != len(options.source_key))):
 		parser.error ("-e/--expression option must be used as many times as the -k/--source-key option")
@@ -131,7 +136,7 @@ try:
 	data = {}
 	datasourceuri = {}
 	# Poll data sources (only once for each data source)
-	for source in set([ k for (k, v) in options.source_key]):
+	for source in set([s for (s, k) in options.source_key]):
 		datasourceuri[source] = "/%s.cgi" % source
 
 		req = Request(options.httphost + datasourceuri[source])
@@ -161,9 +166,7 @@ try:
 
 	# Process keys
 	returndata = []
-	for i in range(len(options.source_key)):
-		(source, key) = options.source_key[i]
-
+	for i, (source, key) in enumerate(options.source_key):
 		if (not len (key)):
 			raise Exception("invalid key (empty string)")
 
