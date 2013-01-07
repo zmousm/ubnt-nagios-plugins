@@ -152,7 +152,7 @@ try:
 			else:
 				raise Exception("response has wrong content-type: " + contype)
 
-		data[source] = json.loads(resp.read())
+		data[source] = json.load(resp)
 
 	sessionclose()
 
