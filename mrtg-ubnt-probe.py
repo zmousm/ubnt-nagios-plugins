@@ -131,7 +131,7 @@ try:
 	data = {}
 	datasourceuri = {}
 	# Poll data sources (only once for each data source)
-	for source in dict(options.source_key).keys():
+	for source in set([ k for (k, v) in options.source_key]):
 		datasourceuri[source] = "/%s.cgi" % source
 
 		req = Request(options.httphost + datasourceuri[source])
