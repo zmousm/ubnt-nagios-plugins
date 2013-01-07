@@ -27,7 +27,7 @@ def dot_to_dict(key):
     retkey = []
     # split at '.' boundaries
     for part in key.split('.'):
-        # ONLY match key[int_index] or [int_index]
+        # ONLY match key[int_index_or_slice] or [int_index_or_slice]
         key_idx_match = re.search('^([^\[\]]+)?(\[[:\d]+\])$', part)
         if key_idx_match:
             part = ''
