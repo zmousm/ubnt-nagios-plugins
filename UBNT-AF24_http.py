@@ -101,6 +101,9 @@ try:
 	req = Request(plugin.options.httphost + '/logout.cgi')
 	resp = urlopen(req)
 
+	# dactemp0/dactemp1 not available beyond fwversion v1.x
+	temperature_data_available = True if (data.host.fwversion.find('v1.') == 0) else False
+
 	# Collect performance data
 	plugin.addPerformanceData ('airfiber.rxpower0', str (data.airfiber.rxpower0), 0, min='-100', max='0')
 	plugin.addPerformanceData ('airfiber.rxpower1', str (data.airfiber.rxpower1), 1, min='-100', max='0')
@@ -109,8 +112,9 @@ try:
 	txmodrate = str (data.airfiber.txmodrate).rstrip('x')
 	plugin.addPerformanceData ('airfiber.txmodrate', txmodrate, 4, min='0', max='6')
 	plugin.addPerformanceData ('wireless.distance', data.wireless.distance, 5, min='100', max='15000')
-	plugin.addPerformanceData ('airfiber.dactemp0', str (data.airfiber.dactemp0), 6, min='-50', max='65')
-	plugin.addPerformanceData ('airfiber.dactemp1', str (data.airfiber.dactemp1), 7, min='-50', max='65')
+	if temperature_data_available:
+		plugin.addPerformanceData ('airfiber.dactemp0', str (data.airfiber.dactemp0), 6, min='-50', max='65')
+		plugin.addPerformanceData ('airfiber.dactemp1', str (data.airfiber.dactemp1), 7, min='-50', max='65')
 	gps_dop = float (data.gps.dop)
 	gps_dop_qual = 0
 	if (gps_dop > 20):
@@ -149,10 +153,11 @@ try:
 		plugin.returnString += " airfiber.txmodrate"
 	if (plugin.checkThreshold (data.wireless.distance, 5) != plugin.returnValues['OK']):
 		plugin.returnString += " wireless.distance"
-	if (plugin.checkThreshold (data.airfiber.dactemp0, 6) != plugin.returnValues['OK']):
-		plugin.returnString += " airfiber.dactemp0"
-	if (plugin.checkThreshold (data.airfiber.dactemp1, 7) != plugin.returnValues['OK']):
-		plugin.returnString += " airfiber.dactemp1"
+	if temperature_data_available:
+		if (plugin.checkThreshold (data.airfiber.dactemp0, 6) != plugin.returnValues['OK']):
+			plugin.returnString += " airfiber.dactemp0"
+		if (plugin.checkThreshold (data.airfiber.dactemp1, 7) != plugin.returnValues['OK']):
+			plugin.returnString += " airfiber.dactemp1"
 	if (plugin.checkThreshold (gps_dop_qual, 8) != plugin.returnValues['OK']):
 		plugin.returnString += " gps.dop_quality"
 	if (plugin.checkThreshold (data.gps.sats, 9) != plugin.returnValues['OK']):
