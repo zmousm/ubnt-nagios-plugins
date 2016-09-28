@@ -56,7 +56,19 @@ try:
 	form.add_field('Submit', 'Login')
 	# We need session cookies
 	cj = cookielib.LWPCookieJar()
-	opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+
+	if plugin.options.httphost.startswith('https'):
+		# We typically can not verify peer certificates
+		# (self-signed, pre-installed on monitored devices)
+		import ssl
+		ctx = ssl.create_default_context()
+		ctx.check_hostname = False
+		ctx.verify_mode = ssl.CERT_NONE
+		opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj),
+                                      urllib2.HTTPSHandler(context=ctx))
+	else:
+		opener = urllib2.build_opener(urllib2.HTTPCookieProcessor(cj))
+
 	urllib2.install_opener(opener)
 	# Shortcuts...
 	urlopen = urllib2.urlopen
